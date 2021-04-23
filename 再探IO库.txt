@@ -1,0 +1,144 @@
+一.格式化输入输出
+1.boolalpha 操纵符:
+int main()
+{
+    cout << "default = " << true << " " << false << endl;
+    cout << "Now = " << boolalpha << true << " " << false << endl;
+}
+输出：
+default = 1 0
+Now = true false
+
+一旦向cout 写入了boolalpha，我们就改变了打印 true 和false 的方式，之后都会打印 true 和 false；
+
+我们还可以将其还原初始状态，也可以针对某一特定变量执行这一操作。
+    cout << "default = " << true << " " << false << endl;
+    cout << "Now = " << boolalpha << true << " " << false << endl;
+    cout << "Now = " << true << " " << false << endl;
+
+    cout << noboolalpha << endl;
+    cout << "default = " << true << " " << false << endl;
+    cout << "Now = " << true << " " << false << endl;
+输出：
+default = 1 0
+Now = true false
+Now = true false
+
+default = 1 0
+Now = 1 0
+
+2.进制控制
+我们可以使用操纵符hex,oct和dec将其改为十六进制/八进制/十进制。
+    cout << "default:" <<20 << " " << 1024 << endl;
+    cout << "octal:" << oct << 20 << " " << 1024 << endl;
+    cout << "hex:" << hex << 20 << " " << 1024 << endl;
+    cout << "dec:" << dec << 20 << " " << 1024 << endl;
+
+输出：
+default: 20 1024
+octal: 24 2000
+hex: 14 400
+dec: 20 1024
+
+注意：这些操纵符只影响整形对象，对浮点值对象无影响。同时他们也会影响下一个和随后的所有整形输出。
+
+使用showbase操纵夫，还可以让输出显示该数值的进制表示。例如0x开头是十六进制，0开头是八进制：
+    cout << showbase;
+    cout << "default: " <<20 << " " << 1024 << endl;
+    cout << "octal: " << oct << 20 << " " << 1024 << endl;
+    cout << "hex: " << hex << 20 << " " << 1024 << endl;
+    cout << "dec: " << dec << 20 << " " << 1024 << endl;
+    cout << noshowbase;
+
+输出：
+default: 20 1024
+octal: 024 02000
+hex: 0x14 0x400
+dec: 20 1024
+
+默认情况下，十六进制会以小写打印，前导字符也是小写的x,我们可以通过使用 uppercase 操纵符来输出大写的X并将十六进制数字a-f以大写输出：
+    cout << showbase;
+    cout << "default: " <<20 << " " << 1024 << endl;
+    cout << "octal: " << oct << 20 << " " << 1024 << endl;
+    cout << "hex: " << hex << 20 << " " << 1024 << endl;
+    cout << "dec: " << dec << 20 << " " << 1024 << endl;
+    cout << noshowbase;
+
+    cout << uppercase << showbase << hex << 20 << " " << 1024 << nouppercase << noshowbase << endl;
+
+输出：
+default: 20 1024
+octal: 024 02000
+hex: 0x14 0x400
+dec: 20 1024
+
+0X14 0X400
+
+
+3.输出格式控制
+我们还可以改变浮点数的精度，通过使用 precision 和 setprecision 操纵符；
+
+我们还可以控制输出的格式：
+int main()
+{
+    int i = -16;
+    double d = 3.1415926;
+    //补白第一列，使用输出中最小12个位置
+    cout << "i:" << setw(12) << i << " next col" << '\n'
+         << "d:" << setw(12) << d << " next col" << '\n';
+
+    //补白第一列，左对齐所有列
+    cout << left
+         << "i:" << setw(12) << i << " next col" << '\n'
+         << "d:" << setw(12) << d << " next col" << '\n'
+         << right;
+
+    //补白第一列，右对齐所有列
+    cout << right
+         << "i:" << setw(12) << i << " next col" << '\n'
+         << "d:" << setw(12) << d << " next col" << '\n';
+
+    //补白第一列，但补在域的内部
+    cout << internal
+         << "i:" << setw(12) << i << " next col" << '\n'
+         << "d:" << setw(12) << d << " next col" << '\n';
+
+    //补白第一列，用#作为补白字符
+    cout << setfill('#')
+         << "i:" << setw(12) << i << " next col" << '\n'
+         << "d:" << setw(12) << d << " next col" << '\n'
+         <<setfill(' ');
+
+}
+
+输出：
+i:         -16 next col
+d:     3.14159 next col
+i:-16          next col
+d:3.14159      next col
+i:         -16 next col
+d:     3.14159 next col
+i:-         16 next col
+d:     3.14159 next col
+i:-#########16 next col
+d:#####3.14159 next col
+
+
+4.输入格式控制
+noskipws可以读取空白字符，而不是跳过他们。skipws可以恢复默认输入格式。
+
+5.未格式化IO
+
+int main()
+{
+    char ch;
+    while(cin.get(ch))
+    {
+        cout.put(ch);
+    }
+
+}
+
+程序读取所有输入，且输出与输入完全相同：
+Ads das     dasd aaaaaaaaa dda
+Ads das     dasd aaaaaaaaa dda
