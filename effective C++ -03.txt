@@ -1,0 +1,7 @@
+尽可能使用const
+如果关键字const出现在星号左边，表示被指物是常量；
+如果出现在星号右边，表示指针本身是常量；
+
+const char* p = &a;//被指物是常量
+char * const p = &a;//指针是常量
+const char* const p = &a;//两者都是常量
