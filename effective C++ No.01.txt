@@ -70,4 +70,19 @@ copy constructor
 创建b1对象时，用到了默认构造函数，很好理解。调用has函数时，用到了B拷贝构造函数，证实了传的确实是b1的一个副本。
 passed by value 通常是个坏主意，passed-by-reference-to-const通常更好，特别是对于类这种较大的对象，之后会再详细谈此话题。
 
-3.C++核心组成
+3.Now C++特性
+*procedural 过程形式
+*object-oriented 面向对象
+*functional 函数形式
+*generic 泛型
+*metaprogramming
+
+4.C++主要的次语言
+	C
+		区块	语句	预处理器	内置数据类型	数组	指针
+	object-oriented C++
+		类	封装	继承	多态	virtural函数（动态绑定）
+	template C++
+		泛型编程	template metaprogramming 模板元编程
+	STL
+		容器	迭代器	算法	函数对象
