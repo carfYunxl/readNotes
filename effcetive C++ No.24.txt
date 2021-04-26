@@ -1,0 +1,136 @@
+No.24 若某函数中所有参数皆需要类型转换，请为此函数采用none-member函数
+
+在讨论这个话题之前，有必要先了解类的隐式类类型转换：
+考虑这样一个例子:
+class A{
+public:
+	A(){
+		//默认构造
+	}
+	~A()
+	{
+		//默认析构
+	}
+	A(string aa):a(aa),b(1){
+		//提供一个参数的构造函数,另一个参数b默认为1
+	}
+	
+	void getTes(const A& t) const
+	{
+		//do something
+	}
+private:
+	string a;//私有成员变量
+	int b;//私有成员变量
+};
+
+int main()
+{
+	A a;
+	string str;
+	a.getTes(str);
+}
+
+
+getTes()函数本该需要一个A的引用作为参数，本例却提供了一个string对象。按道理说，编译器将捕捉到这样一个错误，但本例将可以编译通过，并正确运行。
+事实上，C++对于接收一个参数的构造函数，允许隐式的类型转换。
+即本例中，用接受一个string参数的构造函数，将参数str转换成了类A对象，并传入函数的参数中。
+如果不希望这样的转换，可以通过explicit说明符，阻止这种转换。即：
+explicit A(string aa)a(aa),b(1){
+	//阻止隐式类型转换
+}
+
+假如，你想支持有理数的乘法运算，比如以下面这样一个例子作为开始：
+class Rational{
+public:
+    ~Rational(  ) {//默认析构
+
+    }
+    Rational(  ){//默认构造
+
+    }
+    Rational ( int nn , int dnn ):n( nn ),dn( dnn ){//含有两个参数的构造函数
+
+    }
+    Rational( int tmp ):n( tmp ),dn( 1 ){//含有一个实参，一个默认分母为1的构造函数
+       			        //此处未声明explicit，允许隐式的类类型转换
+
+    }
+    int get_n(  )const{//获取分子
+        return n;
+    }
+    int get_dn(  )const{//获取分母
+        return dn;
+    }
+    
+    const Rational operator*( const Rational&rhs ){
+        return Rational(this->get_n(  )*rhs.get_n(  ),this->get_dn(  )*rhs.get_dn(  ));
+    }
+private:
+    int n;//分子
+    int dn;//分母
+};
+int main(  )
+{
+    Rational onefouth( 1 , 4 );//调用两个参数的构造函数
+    Rational result;//调用默认构造函数
+    result = onefouth * 2;//正确  result = onefouth.operator*( 2 )，2被隐式转换为Rational（2，1）；
+    result = 2 * onefouth;//错误，result = 2.operator*( onefouth(  ) )，此处2不是类对象，没有成员函数operator*( )
+
+    cout << result.get_n( ) << " " << result.get_dn( ) << endl;
+}
+
+在上面这种写法中，允许隐式的类型转换是有原因的。我们容易想到，可以用Rational与一个int相乘，即上面的onefouth * 2。以上的写法可以完美支持，问题在于，
+Rational的乘法应该满足交换律，毕竟我们学的所有乘法都是如此。但 result = 2 * onefouth出现了问题，写成标准写法result = 2.operator*( onefouth(  ) )，
+可以发现，此处2不是类对象，没有成员函数operator*( )。编译器此时可能回到类外继续查找，非成员版本的operator*，即：
+result = operator*(2,onefouth);
+很抱歉，仍然没有找到相关的函数，因此编译器报错！
+
+我们似乎发现了原因，都是成员函数搞得鬼，如果没有成员函数，即:
+将operator*()写成非成员版本,像下面这样:
+class Rational{
+public:
+    ~Rational(  ){//默认析构
+
+    }
+    Rational(  ){//默认构造
+
+    }
+    Rational( int nn , int dnn ):n( nn ),dn( dnn ){//含有两个参数的构造函数
+
+    }
+    Rational( int tmp ):n( tmp ),dn( 1 ){	//含有一个实参，一个默认分母为1的构造函数
+        				//此处未声明explicit，允许隐式的类类型转换
+
+    }
+    int get_n(  )const{//获取分子
+        return n;
+    }
+    int get_dn(  )const{//获取分母
+        return dn;
+    }
+private:
+    int n;//分子
+    int dn;分母
+};
+//令该函数为Rational 的非成员函数
+const Rational operator*( const Rational& lhs , const Rational& rhs ){
+    return Rational( lhs.get_n( ) * rhs.get_n( ) , lhs.get_dn( ) * rhs.get_dn( ) );
+}
+
+int main(  )
+{
+    Rational onefouth( 1 , 4 );
+    Rational result;
+    result = onefouth * 2;//正确
+    result = 2 * onefouth;//正确
+
+    cout << result.get_n(  ) << " " << result.get_dn(  )  << endl;
+}
+这样便可以正常工作了！而且适配性很好!
+
+那么，有必要将operator* 设为Rational 的友元函数吗？
+目前来看，这里没有必要，原因在于，Rational的公有成员已经可以完成所有任务。且无论何时，如果没有足够的理由，能避免friend就应该尽量避免。公开自己的太多隐私，总是会留有隐患。
+
+所以我们可以做如下总结：
+如果你需要为某个函数的所有参数进行类型转换，那么这个函数必须是non-member!
